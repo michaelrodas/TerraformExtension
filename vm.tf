@@ -2,12 +2,30 @@ variable "credential" {
   type = "map"
 }
 
+variable "bpm_vhd"{
+  description ="storage uri of bpm vhd"
+}
 
+
+variable "sql_vhd"{
+  description ="storage uri of sql vhd"
+}
+
+variable "cli_vhd"{
+  description ="storage uri of cli vhd"
+}
+
+variable "storage_name"{
+  description ="storage new vhd"
+}
 variable "location" {
   description = "region where the resources should exist"
   default     = "eastus"
 }
 
+variable "vm_size" {
+  description = "size of the vm to create"
+}
 
 variable "name" {
     description = "Virtual machine and resources name"
@@ -94,7 +112,7 @@ resource "azurerm_network_interface" "vm" {
     }
     depends_on                = ["azurerm_resource_group.vm"]
 }
-
+/*
 resource "azurerm_managed_disk" "vm" {
     name                 = "${var.name}datadisk_existing"
     location             = "${var.location}"
@@ -104,36 +122,38 @@ resource "azurerm_managed_disk" "vm" {
     disk_size_gb         = "1023"
     depends_on                = ["azurerm_resource_group.vm"]
 }
-
+*/
 resource "azurerm_virtual_machine" "vm" {
     name = "${var.name}"
     location = "${var.location}"
     resource_group_name = "${azurerm_resource_group.vm.name}"
     network_interface_ids = ["${azurerm_network_interface.vm.id}"]
-    vm_size = "Standard_DS1_v2"
+    vm_size = "${var.vm_size}"
     delete_os_disk_on_termination = true
     delete_data_disks_on_termination = true
     depends_on                = ["azurerm_resource_group.vm"]
-
+/*
     storage_image_reference {
         publisher = "MicrosoftWindowsServer"
         offer = "WindowsServer"
         sku = "2016-Datacenter"
         version = "latest"
     }
-
+*/
     storage_os_disk {
-        name = "myosdisk1"
+        name = "${var.name}bpmosdisk1"
         caching = "ReadWrite"
+        image_uri     = "${var.bpm_vhd}"
+        vhd_uri       = "https://${var.storage_name}.blob.core.windows.net/vhdtemplate/${var.name}-bpm-1osdisk.vhd"
         create_option = "FromImage"
-        managed_disk_type = "Standard_LRS"
+        os_type       = "Windows"
     }
 
-    os_profile {
-        computer_name = "hostname"
-        admin_username = "${var.name}"
-        admin_password = "${var.name}1Psw"
-    }
+   os_profile {
+    computer_name  = "${var.name}-bpm-1"
+    admin_username = "${var.name}"
+    admin_password = "${var.name}bpm1Psw"
+  }
 
     os_profile_windows_config {
         provision_vm_agent = true
