@@ -90,6 +90,7 @@ resource "azurerm_public_ip" "vm" {
     location = "${var.location}"
     resource_group_name = "${azurerm_resource_group.vm.name}"
     public_ip_address_allocation = "Dynamic"
+    domain_name_label            = "${var.name}-bpm-1"
     idle_timeout_in_minutes = 30
 
 
@@ -112,34 +113,15 @@ resource "azurerm_network_interface" "vm" {
     }
     depends_on                = ["azurerm_resource_group.vm"]
 }
-/*
-resource "azurerm_managed_disk" "vm" {
-    name                 = "${var.name}datadisk_existing"
-    location             = "${var.location}"
-    resource_group_name  = "${azurerm_resource_group.vm.name}"
-    storage_account_type = "Standard_LRS"
-    create_option        = "Empty"
-    disk_size_gb         = "1023"
-    depends_on                = ["azurerm_resource_group.vm"]
-}
-*/
 resource "azurerm_virtual_machine" "vm" {
-    name = "${var.name}"
+    name = "${var.name}-bpm-1"
     location = "${var.location}"
     resource_group_name = "${azurerm_resource_group.vm.name}"
     network_interface_ids = ["${azurerm_network_interface.vm.id}"]
     vm_size = "${var.vm_size}"
     delete_os_disk_on_termination = true
-    delete_data_disks_on_termination = true
     depends_on                = ["azurerm_resource_group.vm"]
-/*
-    storage_image_reference {
-        publisher = "MicrosoftWindowsServer"
-        offer = "WindowsServer"
-        sku = "2016-Datacenter"
-        version = "latest"
-    }
-*/
+
     storage_os_disk {
         name = "${var.name}bpmosdisk1"
         caching = "ReadWrite"
@@ -165,7 +147,7 @@ resource "azurerm_virtual_machine" "vm" {
 }
 
 resource "azurerm_virtual_machine_extension" "vm" {
-    name = "update"
+    name = "BPM"
     location = "${var.location}"
     resource_group_name = "${azurerm_resource_group.vm.name}"
     virtual_machine_name = "${azurerm_virtual_machine.vm.name}"
