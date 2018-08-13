@@ -58,6 +58,7 @@ resource "azurerm_storage_container" "st" {
     resource_group_name = "${azurerm_resource_group.vm.name}"
     storage_account_name = "${azurerm_storage_account.st.name}"
     container_access_type = "blob"
+    depends_on                = ["azurerm_resource_group.vm"]
 }
 
 resource "azurerm_storage_blob" "st" {
@@ -67,6 +68,7 @@ resource "azurerm_storage_blob" "st" {
     storage_container_name = "${azurerm_storage_container.st.name}"
     type = "block"
     source = "install.ps1"
+    depends_on                = ["azurerm_resource_group.vm"]
 }
 
 resource "azurerm_virtual_network" "vm" {
@@ -139,11 +141,15 @@ resource "azurerm_virtual_machine" "vm" {
 
     os_profile_windows_config {
         provision_vm_agent = true
-    }
+        winrm ={
+            protocol="http"
+        }
 
+    }
     tags {
         environment = "test"
     }
+    depends_on                = ["azurerm_resource_group.vm"]
 }
 
 resource "azurerm_virtual_machine_extension" "vm" {
@@ -159,7 +165,7 @@ resource "azurerm_virtual_machine_extension" "vm" {
             "fileUris": [
                 "${azurerm_storage_blob.st.url}"
             ],
-            "commandToExecute": "powershell.exe -File install.ps1"
+            "commandToExecute": "powershell.exe -File install.ps1 -componentName BPM -channel QA -machineName name -dnsdb '\"Persist Security Info=True;User ID=sa;Password=B1z4g1;Data Source=RNF-AUT-SQL-1;Initial Catalog=RNF;\"'"
         }
     SETTINGS
     depends_on                = ["azurerm_virtual_machine.vm"]
