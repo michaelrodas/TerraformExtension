@@ -118,7 +118,6 @@ resource "azurerm_public_ip" "vm" {
     domain_name_label            = "${var.name}-bpm-1"
     idle_timeout_in_minutes      = 30
 
-
     tags {
         environment = "test"
     }
@@ -129,13 +128,15 @@ resource "azurerm_network_interface" "vm" {
     name                = "${var.name}ni"
     location            = "${var.location}"
     resource_group_name = "${azurerm_resource_group.vm.name}"
-
+    network_security_group_id = "${azurerm_network_security_group.vm.id}"
+    
     ip_configuration {
         name                          = "ipconfig1"
         subnet_id                     = "${azurerm_subnet.vm.id}"
         private_ip_address_allocation = "dynamic"
         public_ip_address_id          = "${azurerm_public_ip.vm.id}"
     }
+
     depends_on                = ["azurerm_resource_group.vm"]
 }
 resource "azurerm_virtual_machine" "vm" {
