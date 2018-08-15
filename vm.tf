@@ -159,7 +159,7 @@ resource "azurerm_virtual_machine" "vm" {
    os_profile {
     computer_name  = "${var.name}-bpm-1"
     admin_username = "${var.name}"
-    admin_password = "${var.name}bpm1Psw"
+    admin_password = "${replace("${var.name}", "-", "")}bpm1Psw"
   }
 
     os_profile_windows_config {
@@ -167,7 +167,7 @@ resource "azurerm_virtual_machine" "vm" {
         winrm = {
             protocol="http"
         }
-
+        timezone           = "SA Pacific Standard Time"
     }
     tags {
         environment = "test"
