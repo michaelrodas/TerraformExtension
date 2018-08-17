@@ -117,7 +117,7 @@ resource "azurerm_network_security_rule" "winrmrule" {
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
-  destination_port_range      = "5986"
+  destination_port_range      = "5689"
   source_address_prefixes     = ["10.0.2.0/24"]
   destination_address_prefix  = "*"
   resource_group_name         = "${azurerm_resource_group.vm.name}"
