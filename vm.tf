@@ -39,10 +39,6 @@ variable "nsr_in_winrm_name"{
     description = "inbound network security rule for winrm"
 }
 
-variable "dnsdb"{
-    description = "database conectionString"
-}
-
 provider "azurerm" {
   subscription_id = "${var.credential["subscription_id"]}"
   client_id       = "${var.credential["client_id"]}"
@@ -211,7 +207,7 @@ resource "azurerm_virtual_machine_extension" "vm" {
             "fileUris": [
                 "${azurerm_storage_blob.st.url}"
             ],
-            "commandToExecute": "powershell.exe -File install.ps1 -componentName BPM -channel QA -machineName name -dnsdb ${var.dnsdb} -providerdb MSSqlClient "
+            "commandToExecute": "powershell.exe -File install.ps1 -componentName BPM -channel QA -machineName name -dnsdb '\"Persist Security Info=True;User ID=sa;Password=B1z4g1;Data Source=RNF-AUT-SQL-1;Initial Catalog=RNF;\"'"
         }
     SETTINGS
     depends_on           = ["azurerm_virtual_machine.vm"]
