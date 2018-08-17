@@ -31,10 +31,6 @@ variable "name" {
     description = "Virtual machine and resources name"
 }
 
-variable "nsr_in_rdp_name"{
-    description = "inbound network security rule for rdp"
-}
-
 variable "nsr_in_winrm_name"{
     description = "inbound network security rule for winrm"
 }
@@ -92,21 +88,7 @@ resource "azurerm_network_security_group" "vm" {
   resource_group_name = "${azurerm_resource_group.vm.name}"
 }
 
-resource "azurerm_network_security_rule" "rdprule" {
-  name                        = "${var.nsr_in_rdp_name}"
-  priority                    = 100
-  direction                   = "Inbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "3389"
-  source_address_prefix       = "*"
-  destination_address_prefix  = "*"
-  resource_group_name         = "${azurerm_resource_group.vm.name}"
-  network_security_group_name = "${azurerm_network_security_group.vm.name}"
-}
-
-resource "azurerm_network_security_rule" "winrmrule" {
+resource "azurerm_network_security_rule" "vm" {
   name                        = "${var.nsr_in_winrm_name}"
   priority                    = 200
   direction                   = "Inbound"
@@ -147,7 +129,7 @@ resource "azurerm_network_interface" "vm" {
     location            = "${var.location}"
     resource_group_name = "${azurerm_resource_group.vm.name}"
     network_security_group_id = "${azurerm_network_security_group.vm.id}"
-
+    
     ip_configuration {
         name                          = "ipconfig1"
         subnet_id                     = "${azurerm_subnet.vm.id}"
