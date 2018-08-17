@@ -35,6 +35,10 @@ variable "nsr_in_winrm_name"{
     description = "inbound network security rule for winrm"
 }
 
+variable "dnsdb"{
+    description = "database conectionString"
+}
+
 provider "azurerm" {
   subscription_id = "${var.credential["subscription_id"]}"
   client_id       = "${var.credential["client_id"]}"
@@ -95,7 +99,7 @@ resource "azurerm_network_security_rule" "vm" {
   access                      = "Allow"
   protocol                    = "Tcp"
   source_port_range           = "*"
-  destination_port_range      = "5689"
+  destination_port_range      = "5986"
   source_address_prefixes     = ["10.0.2.0/24"]
   destination_address_prefix  = "*"
   resource_group_name         = "${azurerm_resource_group.vm.name}"
@@ -118,6 +122,7 @@ resource "azurerm_public_ip" "vm" {
     domain_name_label            = "${var.name}-bpm-1"
     idle_timeout_in_minutes      = 30
 
+
     tags {
         environment = "test"
     }
@@ -128,15 +133,13 @@ resource "azurerm_network_interface" "vm" {
     name                = "${var.name}ni"
     location            = "${var.location}"
     resource_group_name = "${azurerm_resource_group.vm.name}"
-    network_security_group_id = "${azurerm_network_security_group.vm.id}"
-    
+
     ip_configuration {
         name                          = "ipconfig1"
         subnet_id                     = "${azurerm_subnet.vm.id}"
         private_ip_address_allocation = "dynamic"
         public_ip_address_id          = "${azurerm_public_ip.vm.id}"
     }
-
     depends_on                = ["azurerm_resource_group.vm"]
 }
 resource "azurerm_virtual_machine" "vm" {
@@ -160,7 +163,7 @@ resource "azurerm_virtual_machine" "vm" {
    os_profile {
     computer_name  = "${var.name}-bpm-1"
     admin_username = "${var.name}"
-    admin_password = "${replace("${var.name}", "-", "")}bpm1Psw"
+    admin_password = "${var.name}bpm1Psw"
   }
 
     os_profile_windows_config {
@@ -168,7 +171,7 @@ resource "azurerm_virtual_machine" "vm" {
         winrm = {
             protocol="http"
         }
-        timezone           = "SA Pacific Standard Time"
+
     }
     tags {
         environment = "test"
@@ -189,7 +192,7 @@ resource "azurerm_virtual_machine_extension" "vm" {
             "fileUris": [
                 "${azurerm_storage_blob.st.url}"
             ],
-            "commandToExecute": "powershell.exe -File install.ps1 -componentName BPM -channel QA -machineName name -dnsdb '\"Persist Security Info=True;User ID=sa;Password=B1z4g1;Data Source=RNF-AUT-SQL-1;Initial Catalog=RNF;\"'"
+            "commandToExecute": "powershell.exe -File install.ps1 -componentName BPM -channel QA -machineName name -dnsdb ${var.dnsdb} -providerdb MSSqlClient "
         }
     SETTINGS
     depends_on           = ["azurerm_virtual_machine.vm"]
