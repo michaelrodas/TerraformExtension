@@ -167,6 +167,7 @@ resource "azurerm_virtual_machine" "vm" {
   }
 
     os_profile_windows_config {
+        enable_automatic_upgrades =true
         provision_vm_agent = true
         winrm = {
             protocol="http"
@@ -192,7 +193,7 @@ resource "azurerm_virtual_machine_extension" "vm" {
             "fileUris": [
                 "${azurerm_storage_blob.st.url}"
             ],
-            "commandToExecute": "powershell.exe -File install.ps1 -componentName BPM -channel QA -machineName name -dnsdb ${var.dnsdb} -providerdb MSSqlClient "
+            "commandToExecute": "powershell.exe -File install.ps1 -componentName BPM -channel QA -machineName ${azurerm_virtual_machine.vm.name} -dnsdb ${var.dnsdb} -providerdb MSSqlClient"
         }
     SETTINGS
     depends_on           = ["azurerm_virtual_machine.vm"]
