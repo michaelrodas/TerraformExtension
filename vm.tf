@@ -198,3 +198,135 @@ resource "azurerm_virtual_machine_extension" "vm" {
     SETTINGS
     depends_on           = ["azurerm_virtual_machine.vm"]
 }
+
+resource "azurerm_public_ip" "sql1" {
+    name                         = "${var.name}sql1ip"
+    location                     = "${var.location}"
+    resource_group_name          = "${azurerm_resource_group.vm.name}"
+    public_ip_address_allocation = "Dynamic"
+    domain_name_label            = "${var.name}-sql-1"
+    idle_timeout_in_minutes      = 30
+
+
+    tags {
+        environment = "test"
+    }
+    depends_on                   = ["azurerm_resource_group.vm"]
+}
+
+resource "azurerm_network_interface" "sql1" {
+    name                = "${var.name}sql1ni"
+    location            = "${var.location}"
+    resource_group_name = "${azurerm_resource_group.vm.name}"
+
+    ip_configuration {
+        name                          = "ipconfig1"
+        subnet_id                     = "${azurerm_subnet.vm.id}"
+        private_ip_address_allocation = "dynamic"
+        public_ip_address_id          = "${azurerm_public_ip.sql1.id}"
+    }
+    depends_on                = ["azurerm_resource_group.vm"]
+}
+resource "azurerm_virtual_machine" "sql1" {
+    name                          = "${var.name}-sql-1"
+    location                      = "${var.location}"
+    resource_group_name           = "${azurerm_resource_group.vm.name}"
+    network_interface_ids         = ["${azurerm_network_interface.sql1.id}"]
+    vm_size                       = "${var.vm_size}"
+    delete_os_disk_on_termination = true
+    depends_on                    = ["azurerm_resource_group.vm"]
+
+    storage_os_disk {
+        name          = "${var.name}-sql-osdisk-1"
+        caching       = "ReadWrite"
+        image_uri     = "${var.sql_vhd}"
+        vhd_uri       = "https://${var.storage_name}.blob.core.windows.net/vhds/${var.name}-sql-osdisk-1.vhd"
+        create_option = "FromImage"
+        os_type       = "Windows"
+    }
+
+   os_profile {
+    computer_name  = "${var.name}-sql-1"
+    admin_username = "${var.name}"
+    admin_password = "${var.name}sql1Psw"
+  }
+
+    os_profile_windows_config {
+        timezone= "SA Pacific Standard Time"
+        enable_automatic_upgrades =true
+        provision_vm_agent = true
+        winrm = {
+            protocol="http"
+        }
+    }
+    tags {
+        environment = "test"
+    }
+    depends_on                = ["azurerm_resource_group.vm"]
+}
+
+resource "azurerm_public_ip" "cli1" {
+    name                         = "${var.name}cli1ip"
+    location                     = "${var.location}"
+    resource_group_name          = "${azurerm_resource_group.vm.name}"
+    public_ip_address_allocation = "Dynamic"
+    domain_name_label            = "${var.name}-cli-1"
+    idle_timeout_in_minutes      = 30
+
+
+    tags {
+        environment = "test"
+    }
+    depends_on                   = ["azurerm_resource_group.vm"]
+}
+
+resource "azurerm_network_interface" "cli1" {
+    name                = "${var.name}cli1ni"
+    location            = "${var.location}"
+    resource_group_name = "${azurerm_resource_group.vm.name}"
+
+    ip_configuration {
+        name                          = "ipconfig1"
+        subnet_id                     = "${azurerm_subnet.vm.id}"
+        private_ip_address_allocation = "dynamic"
+        public_ip_address_id          = "${azurerm_public_ip.cli1.id}"
+    }
+    depends_on                = ["azurerm_resource_group.vm"]
+}
+resource "azurerm_virtual_machine" "cli1" {
+    name                          = "${var.name}-cli-1"
+    location                      = "${var.location}"
+    resource_group_name           = "${azurerm_resource_group.vm.name}"
+    network_interface_ids         = ["${azurerm_network_interface.cli1.id}"]
+    vm_size                       = "${var.vm_size}"
+    delete_os_disk_on_termination = true
+    depends_on                    = ["azurerm_resource_group.vm"]
+
+    storage_os_disk {
+        name          = "${var.name}-cli-osdisk-1"
+        caching       = "ReadWrite"
+        image_uri     = "${var.cli_vhd}"
+        vhd_uri       = "https://${var.storage_name}.blob.core.windows.net/vhds/${var.name}-cli-osdisk-1.vhd"
+        create_option = "FromImage"
+        os_type       = "Windows"
+    }
+
+   os_profile {
+    computer_name  = "${var.name}-cli-1"
+    admin_username = "${var.name}"
+    admin_password = "${var.name}cli1Psw"
+  }
+
+    os_profile_windows_config {
+        timezone= "SA Pacific Standard Time"
+        enable_automatic_upgrades =true
+        provision_vm_agent = true
+        winrm = {
+            protocol="http"
+        }
+    }
+    tags {
+        environment = "test"
+    }
+    depends_on                = ["azurerm_resource_group.vm"]
+}
