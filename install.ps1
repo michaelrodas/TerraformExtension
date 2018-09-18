@@ -13,6 +13,7 @@ choco install -y packer
 choco install -y terraform#> 
 java -jar C:\AutoUpdateToolkit\AutoUpdateToolkit.jar
 Install-Bizagi -componentName $componentName -channel $channel -physicalPath C:\Bizagi\Enterprise\Projects -environmentName RNF -connectionString $dnsdb -database $providerdb
+Install-Bizagi -componentName SCHEDULER -channel $channel -physicalPath C:\Bizagi\Enterprise\Projects -environmentName RNFScheduler -connectionString $dnsdb -database $providerdb
 
 $dnsMachine = "{0}.eastus.cloudapp.azure.com" -f $machineName
 New-SelfSignedCertificate -certstorelocation cert:\localmachine\my -dnsname $dnsMachine

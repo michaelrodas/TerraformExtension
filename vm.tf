@@ -93,7 +93,7 @@ resource "azurerm_network_security_group" "vm" {
 }
 
 resource "azurerm_network_security_rule" "vm" {
-  name                        = "${var.nsr_in_winrm_name}"
+  name                        = "allow_in_winrm}"
   priority                    = 200
   direction                   = "Inbound"
   access                      = "Allow"
@@ -101,6 +101,20 @@ resource "azurerm_network_security_rule" "vm" {
   source_port_range           = "*"
   destination_port_range      = "5986"
   source_address_prefixes     = ["10.0.2.0/24"]
+  destination_address_prefix  = "*"
+  resource_group_name         = "${azurerm_resource_group.vm.name}"
+  network_security_group_name = "${azurerm_network_security_group.vm.name}"
+}
+
+resource "azurerm_network_security_rule" "vm" {
+  name                        = "allow_in_rdp}"
+  priority                    = 210
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "3389"
+  source_address_prefixes     = ["181.143.142.66"]
   destination_address_prefix  = "*"
   resource_group_name         = "${azurerm_resource_group.vm.name}"
   network_security_group_name = "${azurerm_network_security_group.vm.name}"
@@ -330,3 +344,4 @@ resource "azurerm_virtual_machine" "cli1" {
     }
     depends_on                = ["azurerm_resource_group.vm"]
 }
+
