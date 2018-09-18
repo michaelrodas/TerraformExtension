@@ -181,6 +181,7 @@ resource "azurerm_virtual_machine" "vm" {
   }
 
     os_profile_windows_config {
+        timezone= "SA Pacific Standard Time"
         enable_automatic_upgrades =true
         provision_vm_agent = true
         winrm = {
