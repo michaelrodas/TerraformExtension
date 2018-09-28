@@ -52,7 +52,7 @@ resource "azurerm_resource_group" "vm" {
 }
 
 resource "azurerm_storage_account" "st" {
-    name                     = "${replace("${var.name}", "-", "")}"
+    name                     = "${replace("${var.name}", "-", "")}st"
     resource_group_name      = "${azurerm_resource_group.vm.name}"
     location                 = "${var.location}"
     account_tier             = "Standard"
@@ -92,7 +92,7 @@ resource "azurerm_network_security_group" "vm" {
   resource_group_name = "${azurerm_resource_group.vm.name}"
 }
 
-resource "azurerm_network_security_rule" "vm" {
+resource "azurerm_network_security_rule" "winrm" {
   name                        = "allow_in_winrm}"
   priority                    = 200
   direction                   = "Inbound"
@@ -106,7 +106,7 @@ resource "azurerm_network_security_rule" "vm" {
   network_security_group_name = "${azurerm_network_security_group.vm.name}"
 }
 
-resource "azurerm_network_security_rule" "vm" {
+resource "azurerm_network_security_rule" "rdp" {
   name                        = "allow_in_rdp}"
   priority                    = 210
   direction                   = "Inbound"
