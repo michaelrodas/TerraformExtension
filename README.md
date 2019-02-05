@@ -11,7 +11,7 @@ Required Tools:
 # Build and Test
 Terraform plans ready to be deployed
 
-# Contribute
+# Contributors
 Authors:
 Jonathan Maldonado
 Michael Rodas
