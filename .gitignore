@@ -1,6 +1,5 @@
-.terraform/*
+/*/*/.terraform/*
 terraform.tfstate.backup
 terraform.tfstate
 
-var-test.auto.tfvars
 .terraform.tfstate.lock.info
